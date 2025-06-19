@@ -20,7 +20,8 @@ CREATE TABLE IF NOT EXISTS sessions (
     session_token VARCHAR(255) NOT NULL UNIQUE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    archived_at TIMESTAMP WITH TIME ZONE NULL
+    archived_at TIMESTAMP WITH TIME ZONE NULL,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions (user_id);
@@ -28,6 +29,7 @@ CREATE INDEX IF NOT EXISTS idx_sessions_session_token ON sessions (session_token
 CREATE INDEX IF NOT EXISTS idx_sessions_created_at ON sessions (created_at);
 CREATE INDEX IF NOT EXISTS idx_sessions_updated_at ON sessions (updated_at);
 CREATE INDEX IF NOT EXISTS idx_sessions_archived_at ON sessions (archived_at);
+CREATE INDEX IF NOT EXISTS idx_sessions_expires_at ON sessions (expires_at);
 -- +goose StatementEnd
 
 -- +goose Down
@@ -37,6 +39,7 @@ DROP INDEX IF EXISTS idx_sessions_session_token;
 DROP INDEX IF EXISTS idx_sessions_created_at;
 DROP INDEX IF EXISTS idx_sessions_updated_at;
 DROP INDEX IF EXISTS idx_sessions_archived_at;
+DROP INDEX IF EXISTS idx_sessions_expires_at;
 DROP TABLE IF EXISTS sessions;
 
 DROP INDEX IF EXISTS idx_users_email;
