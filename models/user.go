@@ -12,23 +12,27 @@ import (
 )
 
 type User struct {
-	ID         string    `json:"id" db:"id"`
-	Email      string    `json:"email" db:"email"`
-	Password   string    `json:"-" db:"password_hash"`
-	CreatedAt  time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at" db:"updated_at"`
-	ArchivedAt time.Time `json:"archived_at,omitempty" db:"archived_at,omitempty"`
+	ID          string    `json:"id" db:"id"`
+	DisplayName string    `json:"displayName" db:"display_name"`
+	Email       string    `json:"-" db:"email"`
+	Password    string    `json:"-" db:"password_hash"`
+	QRCode      string    `json:"-" db:"qr_code"`
+	CreatedAt   time.Time `json:"-" db:"created_at"`
+	UpdatedAt   time.Time `json:"-" db:"updated_at"`
+	ArchivedAt  time.Time `json:"-" db:"archived_at"`
 }
 
-func NewUser(email, password string) (*User, error) {
+func NewUser(displayName, email, password, qrCode string) (*User, error) {
 	id := uuid.New().String()
 	return &User{
-		ID:         id,
-		Email:      email,
-		Password:   password,
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
-		ArchivedAt: time.Time{},
+		ID:          id,
+		DisplayName: displayName,
+		Email:       email,
+		Password:    password,
+		QRCode:      qrCode,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+		ArchivedAt:  time.Time{},
 	}, nil
 }
 
@@ -52,6 +56,9 @@ func (u *User) Validate() error {
 	if u.Password == "" {
 		return errors.New("password is required")
 	}
+	if u.QRCode == "" {
+		return errors.New("qr code is required")
+	}
 	return nil
 }
 
@@ -73,11 +80,11 @@ func (u *User) Create() error {
 	}
 
 	query := `
-		INSERT INTO users (id, email, password_hash, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5)
+		INSERT INTO users (id, display_name, email, password_hash, qr_code, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
 	`
 
-	_, err = db.Exec(context.Background(), query, u.ID, u.Email, hashedPassword, u.CreatedAt, u.UpdatedAt)
+	_, err = db.Exec(context.Background(), query, u.ID, u.DisplayName, u.Email, hashedPassword, u.QRCode, u.CreatedAt, u.UpdatedAt)
 	if err != nil {
 		return err
 	}
