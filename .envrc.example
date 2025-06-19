@@ -1,0 +1,6 @@
+export MNSTR_DATABASE_URL="postgresql://user:password@host:port/dbname"
+export MNSTR_PORT=8080
+export MNSTR_HOST=0.0.0.0
+export GOOSE_DBSTRING=$MNSTR_DATABASE_URL
+export GOOSE_DRIVER=postgres
+export GOOSE_MIGRATION_DIR=migrations
