@@ -35,28 +35,28 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("Error decoding request: %s", err.Error())
 		log.Printf("Request: %s", string(body))
-		sendError(w, err, http.StatusBadRequest)
+		sendRegisterError(w, err, http.StatusBadRequest)
 		return
 	}
 
 	user, err := models.NewUser(registerRequest.DisplayName, registerRequest.Email, registerRequest.Password, registerRequest.QRCode)
 	if err != nil {
 		log.Printf("Error creating user: %s", err.Error())
-		sendError(w, err, http.StatusInternalServerError)
+		sendRegisterError(w, err, http.StatusInternalServerError)
 		return
 	}
 
 	err = user.Create()
 	if err != nil {
 		log.Printf("Error creating user: %s", err.Error())
-		sendError(w, err, http.StatusInternalServerError)
+		sendRegisterError(w, err, http.StatusInternalServerError)
 		return
 	}
 	log.Printf("User created: %s", user.DisplayName)
-	sendSuccess(w, *user)
+	sendRegisterSuccess(w, *user)
 }
 
-func sendError(w http.ResponseWriter, err error, status int) {
+func sendRegisterError(w http.ResponseWriter, err error, status int) {
 	registerResponse := RegisterResponse{
 		Error: err.Error(),
 	}
@@ -65,7 +65,7 @@ func sendError(w http.ResponseWriter, err error, status int) {
 	json.NewEncoder(w).Encode(registerResponse)
 }
 
-func sendSuccess(w http.ResponseWriter, user models.User) {
+func sendRegisterSuccess(w http.ResponseWriter, user models.User) {
 	registerResponse := RegisterResponse{
 		Error: "",
 		User:  user,

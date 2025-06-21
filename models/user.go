@@ -71,7 +71,10 @@ func (u *User) HashPassword() (string, error) {
 }
 
 func (u *User) Create() error {
-	db := database.Connection()
+	db, err := database.Connection()
+	if err != nil {
+		return err
+	}
 	defer db.Close(context.Background())
 
 	hashedPassword, err := u.HashPassword()
@@ -90,4 +93,37 @@ func (u *User) Create() error {
 	}
 
 	return nil
+}
+
+func FindUserByID(id string) (*User, error) {
+	db, err := database.Connection()
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close(context.Background())
+
+	query := `
+		SELECT id, display_name, email, password_hash, qr_code, created_at, updated_at FROM users WHERE id = $1
+	`
+
+	rows, err := db.Query(context.Background(), query, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var user User
+
+	if rows.Next() {
+		err = rows.Scan(&user.ID, &user.DisplayName, &user.Email, &user.Password, &user.QRCode, &user.CreatedAt, &user.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if user.ID == "" {
+		return nil, errors.New("user not found")
+	}
+
+	return &user, nil
 }
